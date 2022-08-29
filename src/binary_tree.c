@@ -5,6 +5,8 @@
  */
 // start= 10.30 am
 // end= 1.40pm
+// start= 10.30 am
+// DFS finished 11.30am
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
@@ -37,30 +39,46 @@ Node* bt_create(void){
 
         snprintf(buffer, N_CHARS, "%lu", i);
         strcpy(node_array[i].value, buffer);
-        printf("%s", node_array[i].value);
     }
 
     printf("binary tree initialized\n");
     return node_array;
 }
 
+/* Free the memory of a fixed-size binary tree */
+void bt_free(Node* binary_tree){
+    free(binary_tree);
+}
+
+/* Get the child index of a node, or -1 if no such child exists */
+long bt_get_child_idx(const Node* binary_tree, const size_t parent_idx, bool right_node){
+    long child_idx = (2 * parent_idx) + 1 + right_node;
+    if (child_idx >= N_ELEMENTS){
+        return -1;
+    } else {
+        return child_idx;
+    }
+}
+
 /* Get the left or right child of a node */
 Node* bt_get_child(const Node* binary_tree, const size_t parent_idx, bool right_node){
-    size_t child_idx = (2 * parent_idx) + 1 + right_node;
-    if (child_idx >= N_ELEMENTS){
-        printf("ERROR - NO SUCH NODE\n");
-        exit(EXIT_FAILURE);
-    }
+    size_t child_idx = bt_get_child_idx(binary_tree, parent_idx, right_node);
     return &binary_tree[child_idx];
 }
 
-/* Get the parent of a given node */
-Node* bt_get_parent(const Node* binary_tree, const size_t child_idx){
+size_t bt_get_parent_idx(const Node* binary_tree, const size_t child_idx){
     size_t parent_idx = (child_idx - 1) / 2;
     if (parent_idx >= N_ELEMENTS){
         printf("ERROR - NO SUCH NODE\n");
         exit(EXIT_FAILURE);
+    } else {
+        return parent_idx;
     }
+}
+
+/* Get the parent of a given node */
+Node* bt_get_parent(const Node* binary_tree, const size_t child_idx){
+    size_t parent_idx = bt_get_parent_idx(binary_tree, child_idx);
     return &binary_tree[parent_idx];
 }
 
@@ -72,6 +90,52 @@ Node* bt_breadth_first_search(const Node* binary_tree, char* target){
         }
     }
     return NULL;
+}
+
+/* Return the node whose value matches a given string, else NULL. */
+Node* bt_depth_first_search(const Node* binary_tree, char* target){
+    u_int8_t visited_nodes[N_ELEMENTS] = {0}; // No nodes have been visited
+    
+    // the current node index
+    size_t idx = 0;
+    long lchild_idx;
+    long rchild_idx;
+    
+    while (true){
+        if (strcmp(binary_tree[idx].value, target) == 0){
+            return &binary_tree[idx];
+        }
+
+        visited_nodes[idx] = 1;
+        lchild_idx = bt_get_child_idx(binary_tree, idx, false);
+        rchild_idx = bt_get_child_idx(binary_tree, idx, true);
+        
+        // Find the next index to check
+        if (lchild_idx >= 0 &&
+            !visited_nodes[lchild_idx]){
+            // continue from the left subtree
+            idx = lchild_idx;
+            continue;
+        } else if
+           (rchild_idx >= 0 &&
+            !visited_nodes[rchild_idx]){
+            // continue from the right subtree
+            idx = rchild_idx;
+            continue;
+        }
+        // go back up the tree.
+        idx = bt_get_parent_idx(binary_tree, idx);
+        if (idx == 0 &&
+            visited_nodes[1] &&
+            visited_nodes[2]
+            ){
+            // if we're at the first node and both subtrees have been marked as visited,
+            // we have checked all nodes in the tree.
+            printf("NO VALUE FOUND\n");
+            exit(EXIT_FAILURE);
+                    
+        }
+    }
 }
 
 void bt_pretty_print(const Node* binary_tree){
@@ -108,7 +172,7 @@ void bt_pretty_print(const Node* binary_tree){
 }
 
 
-void main(int argc, int argv){
+int main(int argc, char** argv){
     Node* binary_tree = bt_create();
     Node* left_child = bt_get_child(binary_tree, 0, 0);
     Node* right_child = bt_get_child(binary_tree, 0, 1);
@@ -123,15 +187,13 @@ void main(int argc, int argv){
     printf("<%s>\n", parent->value);
 
 
-    Node* match = bt_breadth_first_search(binary_tree, "14");
-    if (match==NULL){
-        printf("No match found.\n");
-    } else {
-        printf("A match was found!\n");
-    }
+    Node* bfs_match = bt_breadth_first_search(binary_tree, "14");
+    printf(bfs_match ? "A match was found!\n" : "No match found.\n");
 
-    // bt_display(binary_tree);
+    Node* dfs_match = bt_depth_first_search(binary_tree, "14");
+    printf(dfs_match ? "A match was found!\n" : "No match found.\n");
+    printf("%s\n", dfs_match->value);
+
     bt_pretty_print(binary_tree);
-
-    return;
+    bt_free(binary_tree);
 }
