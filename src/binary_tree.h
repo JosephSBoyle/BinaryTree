@@ -3,8 +3,6 @@
 
 #include "binary_tree.c"
 
-/* A struct Node in the binary tree, containing a string 'value' field. */
-// extern struct Node; // forward declaration
 
 /* Create a new binary tree. Errors if allocating memory for the tree fails */
 struct Node* bt_create(void);
@@ -12,18 +10,18 @@ struct Node* bt_create(void);
 /* Free the memory of a binary tree */
 void bt_free(struct Node* binary_tree);
 
-/* Get the child index of a struct Node, returning -1 if no such child exists */
+/* Get the child index of a Node, returning -1 if no such child exists */
 long bt_get_child_idx(const size_t parent_idx, bool right_node);
 
-/* Get the parent index of a struct Node, returns -1 if called on the root struct Node */
+/* Get the parent index of a Node, returns -1 if called on the root Node */
 long bt_get_parent_idx(const size_t child_idx);
 
 
 /////* HELPERS */////
-/* Get the child struct Node of a struct Node */
+/* Get the child Node of a Node */
 struct Node* bt_get_child(const struct Node* binary_tree, const size_t parent_idx, bool right_node);
 
-/* Get the parent of a struct Node */
+/* Get the parent of a Node */
 struct Node* bt_get_parent(const struct Node* binary_tree, const size_t child_idx);
 
 /* Pretty print a binary tree to stdout. */
